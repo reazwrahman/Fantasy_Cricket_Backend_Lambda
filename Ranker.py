@@ -36,7 +36,7 @@ class Ranker(object):
         ranking.sort(reverse=True) 
         for i in range (len(ranking)):  
             # get rid of total points from the front
-            ranking[i].pop(0) 
+            ranking[i][0] = i+1
         
         return ranking 
 

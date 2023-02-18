@@ -6,31 +6,35 @@ class DbUpdater(object):
     def __init__(self, match_id):  
         self.match_id = match_id
         self.dynamo_access = DynamoAccess()
+
         self.stats = PlayerStatsTracker(match_id)  
         self.batting_points = self.stats.GetBattingPoints() 
         self.bowling_points = self.stats.GetBowlingPoints() 
         self.fielding_points = self.stats.GetFieldingPoints() 
-        self.summary_points = self.stats.GetSummaryPoints() 
+        self.summary_points = self.stats.GetSummaryPoints()  
+        
+        self.ranker = Ranker(self.match_id, self.summary_points) 
+        self.player_ranks = self.ranker.RankUsers() 
 
-    def UpdatePointsInDynamo(self): 
+    def UpdateDataInDynamo(self): 
         ''' 
             map batting/bowling/fielding/summary/total 
             upload each to dynamo 
-        ''' 
-        self.dynamo_access.UpdateSummaryPoints(self.summary_points)
-        self.dynamo_access.UpdateBattingPoints(self.batting_points) 
-        self.dynamo_access.UpdateBowlingPoints(self.bowling_points) 
-        self.dynamo_access.UpdateFieldingPoints(self.fielding_points) 
-             
-
-    def UpdateRankingInDynamo(self): 
-        ranker = Ranker(self.match_id, self.summary_points) 
-        player_ranks = ranker.RankUsers() 
-        self.dynamo_access.UpdateUserRanking(player_ranks)  
+        '''   
         print(self.summary_points) 
         print('\n') 
         print ('\n')
-        print(player_ranks)
+        print(self.player_ranks) 
+        
+        records = { 'match_id': self.match_id,   
+                    'fantasy_ranks': self.player_ranks,
+                    'batting_points': self.batting_points, 
+                    'bowling_points': self.bowling_points, 
+                    'fielding_points': self.fielding_points, 
+                    'summary_points' : self.summary_points,           
+                  } 
+        self.dynamo_access.UpdateAllPoints(records)
+             
         
 
 def CheckLambdaPreConditions(match_id):  
@@ -55,21 +59,20 @@ def handle(event, context):
     print(f'got match id {match_id}') 
     if CheckLambdaPreConditions(match_id):
         db_updater = DbUpdater(match_id) 
-        db_updater.UpdateRankingInDynamo() 
-        db_updater.UpdatePointsInDynamo() 
+        db_updater.UpdateDataInDynamo()
         return 'dynamo updated'
     
     return 'scorecard not available yet'
 
 
-'''if __name__ == "__main__": 
-    handle({'match_id':'1234'},{}) '''
+if __name__ == "__main__": 
+    handle({'match_id':'1234'},{})
 
 
 #TODO 
 ''' 
 [DONE] setup git repo!! first, would hate to lose my work!!!!
-[*] try do an initial deployment in aws lambda, so we have a benchmark
+[DONE] try do an initial deployment in aws lambda, so we have a benchmark
 tomorrow: setup proper dynamo access 
 so we can make the calls from the interface 
 implement the write calls first 

@@ -1,5 +1,8 @@
 from typing import List, Dict
 import os,sys 
+import boto3  
+import json 
+from decimal import Decimal
 
 
 from FantasyPointsCalculator_API.FantasyPointsCalculator.SquadGenerator.ListOfAllPlayers import AllPlayers
@@ -9,8 +12,9 @@ Responsible for handling all dynamo related calls
 
 class DynamoAccess(object): 
     def __init__(self): 
-        #TODO 
-        pass 
+        self.dynamodb = boto3.resource('dynamodb')   
+        self.table_name = 'all_match_info'
+        self.table = self.dynamodb.Table(self.table_name) 
 
     '''-------------------------- read calls --------------------------'''    
 
@@ -29,7 +33,7 @@ class DynamoAccess(object):
         } 
         placeholder code below
         '''  
-        url: str = 'https://www.espncricinfo.com/series/england-tour-of-new-zealand-2022-23-1322349/new-zealand-vs-england-1st-test-1322355/match-squads'
+        url: str = 'https://www.espncricinfo.com/series/australia-in-india-2022-23-1348637/india-vs-australia-2nd-test-1348653/match-squads'
         squad_generator: AllPlayers = AllPlayers(url)  
         raw_squad = squad_generator.GetFullSquad()
 
@@ -49,7 +53,7 @@ class DynamoAccess(object):
         ''' 
         game_details:Dict = {'match_id': '1234', 
         'game_title': 'nz v pakistan', 
-        'score_card_url': 'https://www.espncricinfo.com/series/england-tour-of-new-zealand-2022-23-1322349/new-zealand-vs-england-1st-test-1322355/full-scorecard', 
+        'score_card_url': 'https://www.espncricinfo.com/series/australia-in-india-2022-23-1348637/india-vs-australia-2nd-test-1348653/full-scorecard', 
         'points_per_run': 1, 
         'points_per_wicket':20 
         }
@@ -70,27 +74,17 @@ class DynamoAccess(object):
     
     '''-------------------------- write calls -------------------------- '''
 
-    def UpdateBattingPoints(self, records:Dict): 
-        ''' update dynamo with batting points'''
-        pass 
-
-    def UpdateBowlingPoints(self, records:Dict): 
-        ''' update dynamo with bowling points'''
-        pass 
-
-    def UpdateFieldingPoints(self, records:Dict): 
-        ''' update dynamo with fielding points'''
-        pass  
-
-    def UpdateSummaryPoints(self, records:Dict): 
-        ''' update dynamo with summary points'''
-        pass 
-
-    def UpdateUserRanking(self, ranks:List[List]): 
-        ''' 
-            update player ranking in dynamo
-        '''
-        pass
+    def UpdateAllPoints(self, records):    
+        item = {'match_id': records['match_id'],   
+                'fantasy_ranks': records['fantasy_ranks'],
+                'batting_points': records['batting_points'], 
+                'bowling_points': records['bowling_points'], 
+                'fielding_points': records['fielding_points'], 
+                'summary_points' : records['summary_points']          
+                } 
+        item = json.loads(json.dumps(item), parse_float=Decimal)  
+        response = self.table.put_item(Item = item) 
+        print(f'DynamoAccess::UpdateAllPoints response = {response}') 
 
 
 if __name__ == "__main__":
