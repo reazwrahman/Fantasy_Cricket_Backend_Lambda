@@ -145,8 +145,6 @@ class FantasyPointsForFullSquad(object):
                                                 final_dict[each]['Batting'], final_dict[each]['Bowling'], 
                                                 final_dict[each]['Fielding'],
                                                 final_dict[each]['Total']],index=final_df.columns),ignore_index=True)
-
-            
     
       
         return final_df 
@@ -198,7 +196,7 @@ def test():
     
     test=FantasyPointsForFullSquad(user_inputs_dict) 
     
-    print (test.GetBattingDf())
+    #print (test.GetBattingDf())
     #print (test.GetTotalBattingPoints()) 
     print ('---------------------')
     '''print (test.GetBowlingDf())
@@ -208,7 +206,7 @@ def test():
     print (test.GetTotalFieldingPoints()) 
     
     print ('------------------') '''
-    #print (test.GetFullSquadDf())  
+    print (test.GetFullSquadDf())  
     #print(test.GetTotalFantasyPoints())  
 
     

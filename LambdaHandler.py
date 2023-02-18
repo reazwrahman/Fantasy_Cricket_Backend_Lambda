@@ -67,7 +67,8 @@ if __name__ == "__main__":
 
 #TODO 
 ''' 
-setup git repo!! first, would hate to lose my work!!!!
+[DONE] setup git repo!! first, would hate to lose my work!!!!
+[*] try do an initial deployment in aws lambda, so we have a benchmark
 tomorrow: setup proper dynamo access 
 so we can make the calls from the interface 
 implement the write calls first 

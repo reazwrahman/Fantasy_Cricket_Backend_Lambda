@@ -81,16 +81,20 @@ class BowlingScoreCard(object):
     
     def __ConvertBowlingDictToDf__(self):        
         bowling_dict=self.__GenerateBowlingDict__()  
-        bowling_df = pd.DataFrame(columns=['Name', 'Overs', 'Maidens', 'Runs', 'Wickets',
-                                  'Econ', 'Dots', '4s', '6s', 'Wd', 'Nb','Team'])
+        bowling_df_columns = ['Name', 'Overs', 'Maidens', 'Runs', 'Wickets',
+                                  'Econ', 'Dots', '4s', '6s', 'Wd', 'Nb','Team'] 
+        records = []
+
         for each in bowling_dict:  
-            bowling_df=bowling_df.append(pd.Series([each,bowling_dict[each]['Overs'], 
+            new_record = [each,bowling_dict[each]['Overs'], 
             bowling_dict[each]['Maidens'],bowling_dict[each]['Runs'], bowling_dict[each]['Wickets'],  
             bowling_dict[each]['Econ'], bowling_dict[each]['Dots'],bowling_dict[each]['4s'], 
             bowling_dict[each]['6s'], bowling_dict[each]['Wd'], bowling_dict[each]['Nb'], 
-            bowling_dict[each]['Team']],
-            index=bowling_df.columns), ignore_index=True) 
+            bowling_dict[each]['Team']] 
+            
+            records.append(new_record)
         
+        bowling_df = pd.DataFrame(records, columns= bowling_df_columns)
         return bowling_df
             
     

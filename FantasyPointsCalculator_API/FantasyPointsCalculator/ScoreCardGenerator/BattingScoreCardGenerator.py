@@ -78,14 +78,18 @@ class BattingScoreCard(object):
     
     def __ConvertBattingDictToDf__(self): 
         batting_dict=self.__GenerateBattingDict__()  
-        batsmen_df = pd.DataFrame(columns=["Name","Desc","Runs", "Balls", "4s", "6s", "Team"])
+        batsmen_df_columns = ["Name","Desc","Runs", "Balls", "4s", "6s", "Team"] 
+        records = []
+        
         for each in batting_dict:  
-            batsmen_df=batsmen_df.append(pd.Series([each,batting_dict[each]['Desc'], 
+            new_record = [each,batting_dict[each]['Desc'], 
             batting_dict[each]['Runs'],batting_dict[each]['Balls'], batting_dict[each]['4s'],  
             batting_dict[each]['6s'], #batting_dict[each]['SR'], 
-            batting_dict[each]['Team']],
-            index=batsmen_df.columns), ignore_index=True) 
+            batting_dict[each]['Team']] 
+
+            records.append(new_record) 
         
+        batsmen_df = pd.DataFrame(records, columns = batsmen_df_columns)  
         return batsmen_df
             
             
