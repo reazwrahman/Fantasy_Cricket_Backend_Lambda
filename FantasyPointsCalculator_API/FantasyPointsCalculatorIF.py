@@ -138,15 +138,17 @@ class FantasyPointsForFullSquad(object):
     
     def GetFullSquadDf(self): 
         final_dict=self.GetFullSquadDict() 
-        final_df=pd.DataFrame(columns=['Name','Batting','Bowling','Fielding','Total']) 
+        final_df_columns = ['Name','Batting','Bowling','Fielding','Total'] 
+        records = [] 
         
-        for each in final_dict:      
-            final_df=final_df.append(pd.Series([each,
-                                                final_dict[each]['Batting'], final_dict[each]['Bowling'], 
-                                                final_dict[each]['Fielding'],
-                                                final_dict[each]['Total']],index=final_df.columns),ignore_index=True)
-    
-      
+        for each in final_dict:     
+            new_record = [each,
+                        final_dict[each]['Batting'], final_dict[each]['Bowling'], 
+                        final_dict[each]['Fielding'],
+                        final_dict[each]['Total']] 
+            records.append(new_record) 
+            
+        final_df = pd.DataFrame(records, columns = final_df_columns)    
         return final_df 
     
     

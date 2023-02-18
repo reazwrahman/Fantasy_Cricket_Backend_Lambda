@@ -32,16 +32,20 @@ class FantasyBattingPoints(object) :
     
     def __GenerateFantasyPointsDf__(self): 
         batter_df=self.__GenerateRawDf__()
-        fantasy_df=pd.DataFrame(columns=['Name','base_points','milestone_points','total_points'])
+        fantasy_df_columns = ['Name','base_points','milestone_points','total_points'] 
+        records = []
+
         for i in range (len(batter_df)):  
             for each_player in self.squad:
                 if batter_df.Name[i] in each_player:  
-                    #print (batter_df.Name[i]) 
-                    total_points=batter_df.base_points[i]+batter_df.milestone_points[i]
-                    fantasy_df=fantasy_df.append(pd.Series([each_player,  
-                                                            batter_df.base_points[i], batter_df.milestone_points[i], 
-                                                            total_points],index=fantasy_df.columns),ignore_index=True) 
-        #print (fantasy_df) 
+                    total_points=batter_df.base_points[i]+batter_df.milestone_points[i] 
+                    new_record =[each_player,  
+                                batter_df.base_points[i], batter_df.milestone_points[i], 
+                                total_points] 
+                    records.append(new_record) 
+
+                    
+        fantasy_df = pd.DataFrame(records, columns = fantasy_df_columns) 
         return (fantasy_df) 
     
     

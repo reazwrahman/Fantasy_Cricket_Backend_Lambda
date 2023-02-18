@@ -42,11 +42,13 @@ class FantasyFieldingPoints(object) :
                 point_dict[each]+=1 
         
         ## convert the points dict dictionary into a df
-        fielder_df = pd.DataFrame(columns=['Name','Dismissals','total_points'])  
+        fielder_df_columns = ['Name','Dismissals','total_points'] 
+        records = [] 
         for each in point_dict: 
-            fielder_df=fielder_df.append(pd.Series([each,point_dict[each], point_dict[each]*self.points_per_catch], 
-                                                   index=fielder_df.columns),ignore_index=True) 
-        
+            new_record = [each,point_dict[each], point_dict[each]*self.points_per_catch]  
+            records.append(new_record) 
+
+        fielder_df = pd.DataFrame(records, columns=fielder_df_columns)
         return fielder_df
     
     def __GenerateFantasyPointsDf__(self): 
