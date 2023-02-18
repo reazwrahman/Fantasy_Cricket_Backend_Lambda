@@ -141,15 +141,12 @@ class FantasyPointsForFullSquad(object):
         final_df=pd.DataFrame(columns=['Name','Batting','Bowling','Fielding','Total']) 
         
         for each in final_dict:      
-            '''final_df=final_df.append(pd.Series([each,
-                                                final_dict[each]['Batting'], final_dict[each]['Bowling'], 
-                                                final_dict[each]['Fielding'],
-                                                final_dict[each]['Total']],index=final_df.columns),ignore_index=True) '''
-
-            final_df=pd.concat(final_df, pd.Series([each,
+            final_df=final_df.append(pd.Series([each,
                                                 final_dict[each]['Batting'], final_dict[each]['Bowling'], 
                                                 final_dict[each]['Fielding'],
                                                 final_dict[each]['Total']],index=final_df.columns),ignore_index=True)
+
+            
     
       
         return final_df 
