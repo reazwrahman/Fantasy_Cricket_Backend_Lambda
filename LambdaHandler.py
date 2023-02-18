@@ -21,10 +21,10 @@ class DbUpdater(object):
             map batting/bowling/fielding/summary/total 
             upload each to dynamo 
         '''   
-        print(self.summary_points) 
+        #print(self.summary_points) 
         print('\n') 
         print ('\n')
-        print(self.player_ranks) 
+        #print(self.player_ranks) 
         
         records = { 'match_id': self.match_id,   
                     'fantasy_ranks': self.player_ranks,
@@ -41,7 +41,7 @@ def CheckLambdaPreConditions(match_id):
     result = False
     dynamo_access = DynamoAccess() 
     game_details = dynamo_access.GetGameDetails(match_id) 
-    scorecard_link = game_details['score_card_url']  
+    scorecard_link = game_details['scorecard_link']  
 
     if len(scorecard_link) > 5: 
         result = True 
@@ -66,15 +66,15 @@ def handle(event, context):
 
 
 if __name__ == "__main__": 
-    handle({'match_id':'1234'},{})
+    handle({'match_id':'4321'},{})
 
 
 #TODO 
 ''' 
 [DONE] setup git repo!! first, would hate to lose my work!!!!
 [DONE] try do an initial deployment in aws lambda, so we have a benchmark
-tomorrow: setup proper dynamo access 
-so we can make the calls from the interface 
-implement the write calls first 
+[DONE] tomorrow: setup proper dynamo access 
+[DONE] so we can make the calls from the interface 
+[DONE] implement the write calls first 
 if time allows do the read calls too
 '''

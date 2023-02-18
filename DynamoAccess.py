@@ -1,8 +1,9 @@
 from typing import List, Dict
 import os,sys 
 import boto3  
-import json 
-from decimal import Decimal
+import simplejson as json
+from decimal import Decimal 
+from boto3.dynamodb.conditions import Key
 
 
 from FantasyPointsCalculator_API.FantasyPointsCalculator.SquadGenerator.ListOfAllPlayers import AllPlayers
@@ -51,14 +52,14 @@ class DynamoAccess(object):
         ''' 
             reads dynamo and returns game_details 
         ''' 
-        game_details:Dict = {'match_id': '1234', 
-        'game_title': 'nz v pakistan', 
-        'score_card_url': 'https://www.espncricinfo.com/series/australia-in-india-2022-23-1348637/india-vs-australia-2nd-test-1348653/full-scorecard', 
-        'points_per_run': 1, 
-        'points_per_wicket':20 
-        }
-
-        return game_details
+        response = self.table.query( 
+                KeyConditionExpression=Key('match_id').eq(match_id),  
+                ProjectionExpression = 'game_details')   
+        
+        json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
+        self.game_details = json_list[0]['game_details']
+        print (self.game_details)
+        return self.game_details
 
     def GetSelectedSquads(self, match_id): 
         ''' 
@@ -74,17 +75,26 @@ class DynamoAccess(object):
     
     '''-------------------------- write calls -------------------------- '''
 
-    def UpdateAllPoints(self, records):    
-        item = {'match_id': records['match_id'],   
-                'fantasy_ranks': records['fantasy_ranks'],
-                'batting_points': records['batting_points'], 
-                'bowling_points': records['bowling_points'], 
-                'fielding_points': records['fielding_points'], 
-                'summary_points' : records['summary_points']          
-                } 
-        item = json.loads(json.dumps(item), parse_float=Decimal)  
-        response = self.table.put_item(Item = item) 
-        print(f'DynamoAccess::UpdateAllPoints response = {response}') 
+    def UpdateAllPoints(self, records):   
+        match_id = records['match_id']   
+        update_expression=  "set fantasy_ranks=:fantasy_ranks, batting_points=:batting_points, bowling_points=:bowling_points, fielding_points=:fielding_points, summary_points=:summary_points"
+
+        try:
+            response = self.table.update_item( 
+                Key={'match_id': match_id}, 
+                UpdateExpression= update_expression, 
+                ExpressionAttributeValues={
+                    ':fantasy_ranks': json.loads(json.dumps(records['fantasy_ranks']), parse_float=Decimal),
+                    ':batting_points': json.loads(json.dumps(records['batting_points']), parse_float=Decimal),
+                    ':bowling_points': json.loads(json.dumps(records['bowling_points']), parse_float=Decimal), 
+                    ':fielding_points': json.loads(json.dumps(records['fielding_points']), parse_float=Decimal), 
+                    ':summary_points': json.loads(json.dumps(records['summary_points']), parse_float=Decimal),   
+                },
+                ReturnValues="UPDATED_NEW"
+            )   
+            print (f'DynamoAccess::UpdateAllPoints successfully updated')
+        except: 
+            print (f'DynamoAccess::UpdateAllPoints FAILED to update items')
 
 
 if __name__ == "__main__":

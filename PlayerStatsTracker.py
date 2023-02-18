@@ -33,7 +33,7 @@ class PlayerStatsTracker(object):
             self.game_squad_reversed[player_name] = player_id
             player_names.append(self.game_squad[each])
 
-        game_info = {'score_card_url': self.game_details['score_card_url'],  
+        game_info = {'score_card_url': self.game_details['scorecard_link'],  
                     'squad': player_names,
                     'points_per_run': 1, 
                     'points_per_wicket': 20
