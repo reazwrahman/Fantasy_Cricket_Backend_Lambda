@@ -21,21 +21,17 @@ class AllPlayers(object):
     
     @staticmethod 
     def ValidateLink(URL): 
-        try: 
-            page = requests.get(URL)
-            bs = BeautifulSoup(page.content, 'lxml')  
-            
-            table_body=None
-            table_body=bs.find_all('tbody') 
-            
-            if table_body == None: 
-                return False 
-            else: 
-                return True
-            
-        except: 
-            raise Exception('AllPlayers::ValidateLink(), Invalid Link was provided, Scraping Can not be completed' )
+        page = requests.get(URL) 
+        bs = BeautifulSoup(page.content, 'lxml')   
         
+        table_body=None
+        table_body=bs.find_all('tbody') 
+        
+        if table_body == None: 
+            return False 
+        else: 
+            return True
+
         
     def __PrepareRawData__(self): 
        

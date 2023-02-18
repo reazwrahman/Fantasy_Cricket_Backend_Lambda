@@ -50,10 +50,11 @@ def handle(event, context):
         use that to update points in dynamo 
         update ranking in dynamo 
         die peacefully
-    '''  
-    match_id = event['match_id'] 
+    '''   
+    match_id = event['match_id']  
+    print(f'got match id {match_id}') 
     if CheckLambdaPreConditions(match_id):
-        db_updater = DbUpdater(match_id)
+        db_updater = DbUpdater(match_id) 
         db_updater.UpdateRankingInDynamo() 
         db_updater.UpdatePointsInDynamo() 
         return 'dynamo updated'
@@ -61,8 +62,8 @@ def handle(event, context):
     return 'scorecard not available yet'
 
 
-if __name__ == "__main__": 
-    handle({'match_id':'1234'},{}) 
+'''if __name__ == "__main__": 
+    handle({'match_id':'1234'},{}) '''
 
 
 #TODO 

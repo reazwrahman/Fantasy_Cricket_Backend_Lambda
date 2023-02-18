@@ -1,0 +1,14 @@
+{
+    "dev": {
+        "app_function": "LambdaHandler.handle",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "fantasy-cricket",
+        "runtime": "python3.9",
+        "s3_bucket": "fantasy-cricket-backend-test"
+    }
+
+    "production": { // The name of your stage
+       
+    }
+}
