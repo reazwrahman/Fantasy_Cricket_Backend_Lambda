@@ -18,7 +18,7 @@ class DynamoAccess(object):
         self.table = self.dynamodb.Table(self.table_name)  
 
         ## frequently read values: 
-        self.game_details = None
+        self.scorecard_details = None
 
     '''-------------------------- read calls --------------------------'''    
 
@@ -37,40 +37,39 @@ class DynamoAccess(object):
         } 
         placeholder code below
         '''  
-        url: str = 'https://www.espncricinfo.com/series/australia-in-india-2022-23-1348637/india-vs-australia-2nd-test-1348653/match-squads'
-        squad_generator: AllPlayers = AllPlayers(url)  
-        raw_squad = squad_generator.GetFullSquad()
-
-        full_squad: Dict = {} 
-        i=1 
-        for each in raw_squad: 
-            full_squad[i] = each
-            i+=1 
-        
-        return full_squad  
-    
-
-    def ReadGameDetails(self, match_id): 
-        ''' 
-            reads dynamo and returns game_details 
-        ''' 
         response = self.table.query( 
                 KeyConditionExpression=Key('match_id').eq(match_id),  
-                ProjectionExpression = 'game_details')   
+                ProjectionExpression = 'match_squad')   
         
         json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
 
         if len(json_list) < 1: 
             raise ValueError("NO ITEM FOUND FOR THE GIVEN MATCH ID, CHECK THE ID OR CHECK DATABASE")
-        else: 
-            self.game_details = json_list[0]['game_details']
+        else:  
+            return json_list[0]['match_squad']
+    
 
-
-    def GetGameDetails(self, match_id): 
-        if not self.game_details: 
-            self.ReadGameDetails(match_id) 
+    def ReadScorecardInfo(self, match_id): 
+        ''' 
+            reads dynamo and returns game_details 
+        ''' 
+        response = self.table.query( 
+                KeyConditionExpression=Key('match_id').eq(match_id),  
+                ProjectionExpression = 'scorecard_details')   
         
-        return self.game_details
+        json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
+
+        if len(json_list) < 1: 
+            raise ValueError("NO ITEM FOUND FOR THE GIVEN MATCH ID, CHECK THE ID OR CHECK DATABASE")
+        else:  
+            self.scorecard_details = json_list[0]['scorecard_details']
+
+
+    def GetScorecardInfo(self, match_id): 
+        if not self.scorecard_details: 
+            self.ReadScorecardInfo(match_id) 
+        
+        return self.scorecard_details
 
     def GetSelectedSquads(self, match_id): 
         ''' 

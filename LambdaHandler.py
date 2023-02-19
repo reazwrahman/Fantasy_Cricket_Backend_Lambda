@@ -35,8 +35,8 @@ class DbUpdater(object):
 def CheckLambdaPreConditions(match_id):  
     result = False
     dynamo_access = DynamoAccess() 
-    game_details = dynamo_access.GetGameDetails(match_id) 
-    scorecard_link = game_details['scorecard_link']  
+    scorecard_details = dynamo_access.GetScorecardInfo(match_id) 
+    scorecard_link = scorecard_details['scorecard_link']  
 
     if len(scorecard_link) > 5: 
         result = True 
@@ -55,7 +55,7 @@ def handle(event, context):
 
 
 if __name__ == "__main__": 
-    handle({'match_id':'4321'},{})
+    handle({'match_id':'1348653'},{})
 
 
 #TODO 

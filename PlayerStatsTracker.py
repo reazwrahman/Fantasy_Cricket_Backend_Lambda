@@ -22,22 +22,22 @@ class PlayerStatsTracker(object):
   
 
     def __CallFantasyApi__(self):   
-        self.game_details = self.dynamo_access.GetGameDetails(self.match_id)
-        self.game_squad = self.dynamo_access.GetSquad(self.match_id) 
+        self.scorecard_details = self.dynamo_access.GetScorecardInfo(self.match_id)
+        self.game_squad = self.dynamo_access.GetMatchSquad(self.match_id) 
         self.game_squad_reversed = {}
         player_names = []
 
         for each in self.game_squad:   
             player_id = each
-            player_name = self.game_squad[each]
+            player_name = self.game_squad[each]['Name']
             self.game_squad_reversed[player_name] = player_id
-            player_names.append(self.game_squad[each])
+            player_names.append(player_name)
 
-        game_info = {'score_card_url': self.game_details['scorecard_link'],  
+        game_info = {'score_card_url': self.scorecard_details['scorecard_link'],  
                     'squad': player_names,
                     'points_per_run': 1, 
                     'points_per_wicket': 20
-                    }
+                    } 
         self.fantasy_api = FantasyPointsForFullSquad(game_info)
 
 
