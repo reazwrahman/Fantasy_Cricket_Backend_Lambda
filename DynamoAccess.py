@@ -15,11 +15,14 @@ class DynamoAccess(object):
     def __init__(self): 
         self.dynamodb = boto3.resource('dynamodb')   
         self.table_name = 'all_match_info'
-        self.table = self.dynamodb.Table(self.table_name) 
+        self.table = self.dynamodb.Table(self.table_name)  
+
+        ## frequently read values: 
+        self.game_details = None
 
     '''-------------------------- read calls --------------------------'''    
 
-    def GetSquad(self, match_id:str) -> List[Dict] : 
+    def GetMatchSquad(self, match_id:str) -> List[Dict] : 
         #TODO 
 
         '''  
@@ -47,8 +50,7 @@ class DynamoAccess(object):
         return full_squad  
     
 
-
-    def GetGameDetails(self, match_id): 
+    def ReadGameDetails(self, match_id): 
         ''' 
             reads dynamo and returns game_details 
         ''' 
@@ -57,8 +59,17 @@ class DynamoAccess(object):
                 ProjectionExpression = 'game_details')   
         
         json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
-        self.game_details = json_list[0]['game_details']
-        print (self.game_details)
+
+        if len(json_list) < 1: 
+            raise ValueError("NO ITEM FOUND FOR THE GIVEN MATCH ID, CHECK THE ID OR CHECK DATABASE")
+        else: 
+            self.game_details = json_list[0]['game_details']
+
+
+    def GetGameDetails(self, match_id): 
+        if not self.game_details: 
+            self.ReadGameDetails(match_id) 
+        
         return self.game_details
 
     def GetSelectedSquads(self, match_id): 
@@ -99,4 +110,4 @@ class DynamoAccess(object):
 
 if __name__ == "__main__":
     x=DynamoAccess() 
-    print (x.GetSquad('123'))
+    print (x.GetMatchSquad('123'))

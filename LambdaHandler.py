@@ -21,11 +21,6 @@ class DbUpdater(object):
             map batting/bowling/fielding/summary/total 
             upload each to dynamo 
         '''   
-        #print(self.summary_points) 
-        print('\n') 
-        print ('\n')
-        #print(self.player_ranks) 
-        
         records = { 'match_id': self.match_id,   
                     'fantasy_ranks': self.player_ranks,
                     'batting_points': self.batting_points, 
@@ -49,12 +44,6 @@ def CheckLambdaPreConditions(match_id):
     return result
 
 def handle(event, context):  
-    ''' 
-        get match id 
-        use that to update points in dynamo 
-        update ranking in dynamo 
-        die peacefully
-    '''   
     match_id = event['match_id']  
     print(f'got match id {match_id}') 
     if CheckLambdaPreConditions(match_id):
@@ -76,5 +65,5 @@ if __name__ == "__main__":
 [DONE] tomorrow: setup proper dynamo access 
 [DONE] so we can make the calls from the interface 
 [DONE] implement the write calls first 
-if time allows do the read calls too
+[half done] if time allows do the read calls too
 '''
