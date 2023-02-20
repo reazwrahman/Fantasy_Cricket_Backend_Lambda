@@ -12,10 +12,11 @@ class Ranker(object):
         captain = user_info['captain'] 
         vice_captain = user_info['vice_captain']
 
-        total_points = 0
-        for each_player in selected_squad: 
-            if each_player in self.summary_points:  
-                total_points += self.summary_points[each_player]['Total'] 
+        total_points = 0 
+        
+        for each_player in selected_squad:  
+            if str(each_player) in self.summary_points:   
+                total_points += self.summary_points[str(each_player)]['Total'] 
         
         ## apply cap_vc points 
         if captain in self.summary_points: 
