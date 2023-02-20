@@ -57,7 +57,7 @@ class PlayerStatsTracker(object):
 
     def __MapBattingPoints__(self) -> List[Dict]: 
         ''' maps player id to batting points''' 
-        batting_points = self.fantasy_api.GetBattingDf()   
+        batting_points = self.fantasy_api.GetBattingDf() 
         batting_points = batting_points.to_dict('records') 
 
         return self.__MapIdToRecord__(batting_points) 

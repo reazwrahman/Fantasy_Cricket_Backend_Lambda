@@ -24,7 +24,7 @@ class Ranker(object):
         if vice_captain in self.summary_points: 
             total_points += (self.summary_points[vice_captain]['Total']/2) # 1.5x boost 
 
-        return [total_points, user_info['user_name'], total_points] 
+        return [total_points, user_info['user_id'], user_info['user_name'], total_points] 
      
         
     def RankUsers(self): 
