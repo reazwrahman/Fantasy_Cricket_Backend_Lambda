@@ -3,7 +3,7 @@ import os,sys
 import boto3  
 import simplejson as json
 from decimal import Decimal 
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 
 
 from FantasyPointsCalculator_API.FantasyPointsCalculator.SquadGenerator.ListOfAllPlayers import AllPlayers
@@ -14,8 +14,11 @@ Responsible for handling all dynamo related calls
 class DynamoAccess(object): 
     def __init__(self): 
         self.dynamodb = boto3.resource('dynamodb')   
-        self.table_name = 'all_match_info'
-        self.table = self.dynamodb.Table(self.table_name)  
+        self.match_table_name = 'all_match_info'
+        self.match_table = self.dynamodb.Table(self.match_table_name)   
+
+        self.squad_table_name = 'selected_squads' 
+        self.squad_table = self.dynamodb.Table(self.squad_table_name)
 
         ## frequently read values: 
         self.scorecard_details = None
@@ -23,7 +26,7 @@ class DynamoAccess(object):
     '''-------------------------- read calls --------------------------'''    
 
     def GetMatchSquad(self, match_id:str): 
-        response = self.table.query( 
+        response = self.match_table.query( 
                 KeyConditionExpression=Key('match_id').eq(match_id),  
                 ProjectionExpression = 'match_squad')   
         
@@ -39,7 +42,7 @@ class DynamoAccess(object):
         ''' 
             reads dynamo and returns game_details 
         ''' 
-        response = self.table.query( 
+        response = self.match_table.query( 
                 KeyConditionExpression=Key('match_id').eq(match_id),  
                 ProjectionExpression = 'scorecard_details')   
         
@@ -60,13 +63,25 @@ class DynamoAccess(object):
     def GetSelectedSquads(self, match_id): 
         ''' 
             return a list of all users with their squads 
-            [{user_id:1, user_name:maxwell, selected_squad:[1,15,16,19...]}]
-        '''  
-        user1 = {'user_id':5, 'user_name':'maxwell', 'squad':[1,15,6,9,3,20,5,9],'captain':20, 'vice_captain':9 } 
-        user2 = {'user_id':1, 'user_name':'warner', 'squad':[19,17,7,8,9,4,3,27],'captain':19, 'vice_captain': 3} 
-        user3 = {'user_id':4, 'user_name':'renshaw', 'squad':[15,14,13,11,19,23,2],'captain': 15, 'vice_captain':2}
-        info = [user1, user2, user3]
-        return info
+            [{user_id:1, user_name:maxwell, selected_squad:[1,15,16,19...]}] 
+            '''
+        response = self.squad_table.scan(
+                    FilterExpression=Attr("match_id").eq(match_id)
+                    ) 
+        json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
+        all_info = [] 
+        for i in range(len(json_list)): 
+            squad_selection = json_list[i]['squad_selection']
+            user_name = json_list[i]['user_name'] 
+            user_id = json_list[i]['user_id']
+            user_info = {'user_id':user_id, 'user_name':user_name, 
+                         'squad': squad_selection['selected_squad'], 
+                         'captain': squad_selection['captain'],
+                         'vice_captain': squad_selection['vice_captain']} 
+            
+            all_info.append(user_info) 
+        
+        return all_info
 
     
     '''-------------------------- write calls -------------------------- '''
@@ -76,7 +91,7 @@ class DynamoAccess(object):
         update_expression=  "set fantasy_ranks=:fantasy_ranks, batting_points=:batting_points, bowling_points=:bowling_points, fielding_points=:fielding_points, summary_points=:summary_points"
 
         try:
-            response = self.table.update_item( 
+            response = self.match_table.update_item( 
                 Key={'match_id': match_id}, 
                 UpdateExpression= update_expression, 
                 ExpressionAttributeValues={
