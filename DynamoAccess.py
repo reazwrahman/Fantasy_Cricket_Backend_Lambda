@@ -22,7 +22,7 @@ class DynamoAccess(object):
 
     '''-------------------------- read calls --------------------------'''    
 
-    def GetMatchSquad(self, match_id:str) -> List[Dict] : 
+    def GetMatchSquad(self, match_id:str): 
         response = self.table.query( 
                 KeyConditionExpression=Key('match_id').eq(match_id),  
                 ProjectionExpression = 'match_squad')   
