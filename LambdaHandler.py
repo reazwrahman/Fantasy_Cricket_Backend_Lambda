@@ -55,15 +55,4 @@ def handle(event, context):
 
 
 if __name__ == "__main__": 
-    handle({'match_id':'1354932'},{})
-
-
-#TODO 
-''' 
-[DONE] setup git repo!! first, would hate to lose my work!!!!
-[DONE] try do an initial deployment in aws lambda, so we have a benchmark
-[DONE] tomorrow: setup proper dynamo access 
-[DONE] so we can make the calls from the interface 
-[DONE] implement the write calls first 
-[half done] if time allows do the read calls too
-'''
+    handle({'match_id':'1322355'},{})
