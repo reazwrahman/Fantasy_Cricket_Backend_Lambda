@@ -88,7 +88,7 @@ class DynamoAccess(object):
 
     def UpdateAllPoints(self, records):   
         match_id = records['match_id']   
-        update_expression=  "set fantasy_ranks=:fantasy_ranks, batting_points=:batting_points, bowling_points=:bowling_points, fielding_points=:fielding_points, summary_points=:summary_points"
+        update_expression=  "set fantasy_ranks=:fantasy_ranks, batting_points=:batting_points, bowling_points=:bowling_points, fielding_points=:fielding_points, summary_points=:summary_points, last_updated=:last_updated"
 
         try:
             response = self.match_table.update_item( 
@@ -99,13 +99,16 @@ class DynamoAccess(object):
                     ':batting_points': json.loads(json.dumps(records['batting_points']), parse_float=Decimal),
                     ':bowling_points': json.loads(json.dumps(records['bowling_points']), parse_float=Decimal), 
                     ':fielding_points': json.loads(json.dumps(records['fielding_points']), parse_float=Decimal), 
-                    ':summary_points': json.loads(json.dumps(records['summary_points']), parse_float=Decimal),   
+                    ':summary_points': json.loads(json.dumps(records['summary_points']), parse_float=Decimal),  
+                    ':last_updated': json.loads(json.dumps(records['last_updated']), parse_float=Decimal), 
+
                 },
                 ReturnValues="UPDATED_NEW"
             )   
             print (f'DynamoAccess::UpdateAllPoints successfully updated')
         except: 
-            print (f'DynamoAccess::UpdateAllPoints FAILED to update items')
+            print (f'DynamoAccess::UpdateAllPoints FAILED to update items') 
+        
 
 
 if __name__ == "__main__":
