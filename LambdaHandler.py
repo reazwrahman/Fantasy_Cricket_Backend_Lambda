@@ -38,12 +38,9 @@ class DbUpdater(object):
         # Get the current time in UTC
         now_utc = datetime.utcnow()
 
-        # Convert the UTC time to the Eastern Standard Timezone
-        eastern = timezone('US/Eastern')
-        now_est = now_utc.astimezone(eastern)
-
-        # Format the time as a string and return it
-        return now_est.strftime('%Y-%m-%d %H:%M:%S EST')
+        # Format the time as a string and return it 
+        time_str = now_utc.strftime('%Y-%m-%d %H:%M:%S UTC') 
+        return time_str
 
              
         
