@@ -1,23 +1,41 @@
 from datetime import datetime
 from pytz import timezone
 
+from FantasyPointsCalculator_API.MatchResultFinder import MatchResultFinder
 from PlayerStatsTracker import PlayerStatsTracker 
 from DynamoAccess import DynamoAccess 
-from Ranker import Ranker
+from Ranker import Ranker 
 
 class DbUpdater(object): 
     def __init__(self, match_id):  
-        self.match_id = match_id
+        self.match_id = match_id     
+        self.__Initialize__()   
+    
+    def __Initialize__(self):   
         self.dynamo_access = DynamoAccess()
 
-        self.stats = PlayerStatsTracker(match_id)  
+        ## find match result
+        scorecard_info = self.dynamo_access.GetScorecardInfo(self.match_id) 
+        scorecard_url = scorecard_info['scorecard_link'] 
+        team_names = self.dynamo_access.GetTeamNames(self.match_id) 
+        self.match_result_finder = MatchResultFinder(scorecard_url, team_names[0], team_names[1])  
+        self.match_result = 'unknown' 
+        try:
+            self.match_result = self.match_result_finder.FindMatchResult()
+        except: 
+            print("DbUpdater::__Initialize__ failed to extract match result, something went wrong with webscraping")
+
+        ## update player stats
+        self.stats = PlayerStatsTracker(self.match_id) 
         self.batting_points = self.stats.GetBattingPoints() 
         self.bowling_points = self.stats.GetBowlingPoints() 
         self.fielding_points = self.stats.GetFieldingPoints() 
         self.summary_points = self.stats.GetSummaryPoints()  
-        
-        self.ranker = Ranker(self.match_id, self.summary_points) 
-        self.player_ranks = self.ranker.RankUsers() 
+
+        ## do fantasy rankings 
+        self.ranker = Ranker(self.match_id, self.summary_points, self.match_result) 
+        self.player_ranks = self.ranker.RankUsers()  
+
 
     def UpdateDataInDynamo(self): 
         ''' 
@@ -30,7 +48,8 @@ class DbUpdater(object):
                     'bowling_points': self.bowling_points, 
                     'fielding_points': self.fielding_points, 
                     'summary_points' : self.summary_points, 
-                    'last_updated' : self.GetCurrentTimeInEst()         
+                    'last_updated' : self.GetCurrentTimeInEst(),  
+                    'match_result' : self.match_result
                   } 
         self.dynamo_access.UpdateAllPoints(records) 
     
@@ -46,13 +65,19 @@ class DbUpdater(object):
         
 
 def CheckLambdaPreConditions(match_id):  
-    result = False
+    result = True
     dynamo_access = DynamoAccess() 
     scorecard_details = dynamo_access.GetScorecardInfo(match_id) 
-    scorecard_link = scorecard_details['scorecard_link']  
+    scorecard_link = scorecard_details['scorecard_link']   
+    match_result = dynamo_access.GetMatchResult(match_id)
 
-    if len(scorecard_link) > 5: 
-        result = True 
+    ## condition1
+    if len(scorecard_link) <= 5: 
+        result = False  
+    
+    ##condition2
+    if match_result != 'unknown': #if the result is determined already, no need to update database again
+        result = False
     
     return result
 
@@ -68,4 +93,4 @@ def handle(event, context):
 
 
 if __name__ == "__main__": 
-    handle({'match_id':'1322356'},{})
+    handle({'match_id':'1351400'},{})

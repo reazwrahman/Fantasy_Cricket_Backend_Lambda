@@ -23,7 +23,35 @@ class DynamoAccess(object):
         ## frequently read values: 
         self.scorecard_details = None
 
-    '''-------------------------- read calls --------------------------'''    
+    '''-------------------------- read calls --------------------------'''  
+
+    def GetMatchResult(self, match_id:str): 
+        response = self.match_table.query( 
+                KeyConditionExpression=Key('match_id').eq(match_id),  
+                ProjectionExpression = 'match_result')   
+        
+        json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
+
+        if len(json_list) < 1: 
+            raise ValueError("NO ITEM FOUND FOR THE GIVEN MATCH ID, CHECK THE ID OR CHECK DATABASE")
+        else:  
+            return json_list[0]['match_result'] 
+    
+    def GetTeamNames(self, match_id): 
+        response = self.match_table.query( 
+                KeyConditionExpression=Key('match_id').eq(match_id),  
+                ProjectionExpression = 'team1')         
+        json_list = json.loads(json.dumps(response["Items"], use_decimal=True))
+        team1 = json_list[0]['team1']  
+
+        response = self.match_table.query( 
+                KeyConditionExpression=Key('match_id').eq(match_id),  
+                ProjectionExpression = 'team2')   
+        json_list = json.loads(json.dumps(response["Items"], use_decimal=True)) 
+        team2 = json_list[0]['team2']   
+
+        return [team1, team2] 
+
 
     def GetMatchSquad(self, match_id:str): 
         response = self.match_table.query( 
@@ -77,7 +105,8 @@ class DynamoAccess(object):
             user_info = {'user_id':user_id, 'user_name':user_name, 
                          'squad': squad_selection['selected_squad'], 
                          'captain': squad_selection['captain'],
-                         'vice_captain': squad_selection['vice_captain']} 
+                         'vice_captain': squad_selection['vice_captain'], 
+                         'result_prediction': squad_selection['result_prediction']} 
             
             all_info.append(user_info) 
         
@@ -88,7 +117,7 @@ class DynamoAccess(object):
 
     def UpdateAllPoints(self, records):   
         match_id = records['match_id']   
-        update_expression=  "set fantasy_ranks=:fantasy_ranks, batting_points=:batting_points, bowling_points=:bowling_points, fielding_points=:fielding_points, summary_points=:summary_points, last_updated=:last_updated"
+        update_expression=  "set fantasy_ranks=:fantasy_ranks, batting_points=:batting_points, bowling_points=:bowling_points, fielding_points=:fielding_points, summary_points=:summary_points, last_updated=:last_updated, match_result=:match_result"
 
         try:
             response = self.match_table.update_item( 
@@ -100,8 +129,8 @@ class DynamoAccess(object):
                     ':bowling_points': json.loads(json.dumps(records['bowling_points']), parse_float=Decimal), 
                     ':fielding_points': json.loads(json.dumps(records['fielding_points']), parse_float=Decimal), 
                     ':summary_points': json.loads(json.dumps(records['summary_points']), parse_float=Decimal),  
-                    ':last_updated': json.loads(json.dumps(records['last_updated']), parse_float=Decimal), 
-
+                    ':last_updated': json.loads(json.dumps(records['last_updated']), parse_float=Decimal),  
+                    ':match_result': json.loads(json.dumps(records['match_result']), parse_float=Decimal),
                 },
                 ReturnValues="UPDATED_NEW"
             )   
