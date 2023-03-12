@@ -49,22 +49,34 @@ class BattingScoreCard(object):
                     cols=[x.text.strip() for x in cols]
                     if cols[0] == 'Extras':
                         continue
-                                              
                     cols[0]=re.sub(r"\W+", ' ', cols[0].split("(c)")[0]).strip()                     
-                    #print (cols)
                     if len(cols) >= len(columns):            
-                        name=cols[0]
-                        if name not in batsmen_dict:          
-                            batsmen_dict[name]={'Desc':cols[1], 'Runs': int(cols[2]),  
-                                                'Balls': int(cols[3]),  '4s': int(cols[5]),
-                                                '6s': int(cols[6]), #'SR': float(cols[7]),  
+                        name=cols[0] 
+                        description = cols[1]
+                         
+                        ## extract the integer variables 
+                        try: 
+                            runs = int(cols[2])   
+                            balls = int(cols[3]) 
+                            fours = int(cols[5])
+                            sixes = int(cols[6]) 
+                        except:
+                            runs = 0  
+                            balls = 0 
+                            fours = 0 
+                            sixes = 0
+
+                        if name not in batsmen_dict:                              
+                            batsmen_dict[name]={'Desc':description, 'Runs': runs,  
+                                                'Balls': balls,  '4s': fours,
+                                                '6s': sixes, #'SR': float(cols[7]),  
                                                 'Team': i+1}
                             
                         else:   
-                            batsmen_dict[name]['Runs']+= int(cols[2]) 
-                            batsmen_dict[name]['Balls']+= int(cols[3])
-                            batsmen_dict[name]['4s']+= int(cols[5])  
-                            batsmen_dict[name]['6s']+= int(cols[6]) 
+                            batsmen_dict[name]['Runs']+= runs
+                            batsmen_dict[name]['Balls']+= balls
+                            batsmen_dict[name]['4s']+= fours
+                            batsmen_dict[name]['6s']+= sixes 
                             #batsmen_dict[name]['SR']=(batsmen_dict[name]['Runs']/batsmen_dict[name]['Balls'])*100
                      
                        
