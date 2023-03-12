@@ -14,9 +14,9 @@ how to update lambda in the aws:
 1) enable prod_venv venv (source prod_venv/bin/activate) 
 note: it's idential to local, except the pandas and numpy library 
 2) pip install -r prod_requirements.txt 
-3) run `zappa package production -o backend_lambda.zip` 
+3) run `zappa package production -o ../backend_lambda.zip` 
 this will create a zip file with linux based wheels 
-4) now add your code to that zip by runninng `zip -r backend_lambda.zip .` 
+4) now add your code to that zip by runninng `zip -r ../backend_lambda.zip .` 
 5) upload zip with aws console
 
 that's all. eNJOY
