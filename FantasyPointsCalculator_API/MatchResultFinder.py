@@ -26,7 +26,7 @@ class MatchResultFinder(object):
     def FindMatchResult(self):
         match_results = self.__ExtractPage__()
 
-        if not match_results: 
+        if len(match_results) == 0: 
             return None 
         
         last_result = str(match_results[-1])

@@ -21,7 +21,9 @@ class DbUpdater(object):
         self.match_result_finder = MatchResultFinder(scorecard_url, team_names[0], team_names[1])  
         self.match_result = 'unknown' 
         try:
-            self.match_result = self.match_result_finder.FindMatchResult()
+            match_result = self.match_result_finder.FindMatchResult() 
+            if match_result:
+                self.match_result = match_result
         except: 
             print("DbUpdater::__Initialize__ failed to extract match result, something went wrong with webscraping")
 
@@ -48,12 +50,12 @@ class DbUpdater(object):
                     'bowling_points': self.bowling_points, 
                     'fielding_points': self.fielding_points, 
                     'summary_points' : self.summary_points, 
-                    'last_updated' : self.GetCurrentTimeInEst(),  
+                    'last_updated' : self.GetCurrentTimeInUtc(),  
                     'match_result' : self.match_result
                   } 
         self.dynamo_access.UpdateAllPoints(records) 
     
-    def GetCurrentTimeInEst(self):  
+    def GetCurrentTimeInUtc(self):  
         # Get the current time in UTC
         now_utc = datetime.utcnow()
 
