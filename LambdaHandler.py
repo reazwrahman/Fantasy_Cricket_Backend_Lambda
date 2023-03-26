@@ -19,13 +19,14 @@ class DbUpdater(object):
         scorecard_url = scorecard_info['scorecard_link'] 
         team_names = self.dynamo_access.GetTeamNames(self.match_id) 
         self.match_result_finder = MatchResultFinder(scorecard_url, team_names[0], team_names[1])  
-        self.match_result = 'unknown' 
-        try:
-            match_result = self.match_result_finder.FindMatchResult() 
-            if match_result:
-                self.match_result = match_result
-        except: 
-            print("DbUpdater::__Initialize__ failed to extract match result, something went wrong with webscraping")
+        self.match_result = self.dynamo_access.GetMatchResult(self.match_id)
+        if self.match_result == 'unknown': 
+            try:
+                match_result = self.match_result_finder.FindMatchResult() 
+                if match_result:
+                    self.match_result = match_result
+            except: 
+                print("DbUpdater::__Initialize__ failed to extract match result, something went wrong with webscraping")
 
         ## update player stats
         self.stats = PlayerStatsTracker(self.match_id) 
@@ -77,10 +78,6 @@ def CheckLambdaPreConditions(match_id):
     if len(scorecard_link) <= 5: 
         result = False  
     
-    ##condition2
-    if match_result != 'unknown': #if the result is determined already, no need to update database again
-        result = False
-    
     return result
 
 def handle(event, context):  
@@ -95,4 +92,4 @@ def handle(event, context):
 
 
 if __name__ == "__main__": 
-    handle({'match_id':'1351400'},{})
+    handle({'match_id':'1322357'},{})

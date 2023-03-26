@@ -27,18 +27,18 @@ class MatchResultFinder(object):
         match_results = self.__ExtractPage__()
 
         if len(match_results) == 0: 
-            return None 
-        
-        last_result = str(match_results[-1])
-        ''' check if match is drawn (most likely that's the last result found on that page) 
-            this may change in the future ''' 
-        
-        if 'drawn' in last_result or 'tied' in last_result: 
-            return 'draw'  
-        elif self.team1.lower() in last_result.lower(): 
-            return 'team1' 
-        elif self.team2.lower() in last_result.lower(): 
-            return 'team2'  
-        else: 
-            return 'unknown'
+            return None  
 
+
+        for i in range (len(match_results)): 
+            curr_result = str(match_results[i]).lower() 
+            if self.team1.lower() in curr_result:   
+                return 'team1'  
+            if self.team2.lower() in curr_result: 
+                return 'team2' 
+            
+            ## uncomment it later if conflicts can be avoided
+            #elif (i == len(match_results)-1) and ('drawn' in match_results[i] or 'tied' in match_results[i]): 
+            #    return 'draw' 
+        
+        return 'unknown'
